@@ -44,6 +44,7 @@ void Main::OnInitialize() {
     dt::Scene* scene = AddScene(new dt::Scene("testscene"));
 
     dt::ResourceManager::Get()->AddResourceLocation("sinbad.zip","Zip", true);
+    dt::ResourceManager::Get()->AddResourceLocation("", "FileSystem", true);
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
     dt::ScriptManager::Get()->LoadScript("scripts/circular_movement.js");

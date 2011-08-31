@@ -10,6 +10,7 @@
 
 #include <Core/Root.hpp>
 #include <Utils/LogManager.hpp>
+#include <Utils/Utils.hpp>
 
 namespace dt {
 
@@ -103,8 +104,7 @@ BindingsManager* EventManager::GetBindingsManager() {
 }
 
 void EventManager::RegEventType(const QString& name, uint32_t id) {
-    char id_str[10];
-    sprintf(id_str, "%d", id);
+    QString id_str = Utils::ToString(id);
     if (id < 65536) {
         Logger::Get().Warning("Failed registering event " + name + " at " + id_str + " because those id's are only used in Engine Events found in Event.hpp");
     }

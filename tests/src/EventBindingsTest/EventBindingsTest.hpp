@@ -22,8 +22,8 @@
 namespace EventBindingsTest {
 
 enum TestEventType : uint32_t {
-    testTriggerEvent = 65536,
-    testBoundEvent = 65537
+    TESTTRIGGEREVENT = 65536,
+    TESTBOUNDEVENT = 65537
 };
 
 class EventBindingsTest : public Test {

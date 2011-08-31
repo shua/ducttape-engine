@@ -14,7 +14,7 @@ ChatMessageEvent::ChatMessageEvent(const QString& message, const QString& sender
 }
 
 uint32_t ChatMessageEvent::GetType() const {
-    return chatMessageEvent;
+    return CHATMESSAGEEVENT;
 }
 
 std::shared_ptr<dt::Event> ChatMessageEvent::Clone() const {

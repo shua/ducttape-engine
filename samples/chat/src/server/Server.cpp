@@ -19,9 +19,6 @@
 void Server::OnInitialize() {
     dt::EventManager::Get()->AddListener(this);
 
-    std::shared_ptr<dt::NetworkEvent> ptr(new ChatMessageEvent("",""));
-    dt::NetworkManager::Get()->RegisterNetworkEventPrototype(ptr);
-
     dt::NetworkManager::Get()->BindSocket(29876);
 }
 
@@ -29,7 +26,7 @@ void Server::HandleEvent(std::shared_ptr<dt::Event> e) {
     // This is quite useful for debugging purposes.
     //dt::Logger::Get().Info("There are " + boost::lexical_cast<QString>(dt::ConnectionsManager::Get()->GetConnectionCount()) + " connections active.");
 
-    if(e->GetType() == chatMessageEvent) {
+    if(e->GetType() == CHATMESSAGEEVENT) {
         std::shared_ptr<ChatMessageEvent> c = std::dynamic_pointer_cast<ChatMessageEvent>(e);
 
         if(c->IsLocalEvent()) { // we just received this

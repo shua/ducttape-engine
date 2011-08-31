@@ -21,8 +21,8 @@
 namespace EventsTest {
 
 enum testEventTypes : uint32_t {
-    cancelEvent = 65536,
-    testEvent = 65537
+    CANCELEVENT = 65536,
+    TESTEVENT = 65537
 };
 
 class EventsTest : public Test {

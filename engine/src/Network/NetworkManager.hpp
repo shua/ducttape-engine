@@ -99,14 +99,6 @@ public:
     void HandleIncomingEvents();
 
     /**
-      * Registers a NetworkEvent as prototype for incoming packets.
-      * @see Factory Pattern
-      * @see NetworkEvent::Clone();
-      * @param event A new instance of a NetworkEvent to be used for factory.
-      */
-    void RegisterNetworkEventPrototype(std::shared_ptr<NetworkEvent> event);
-
-    /**
       * Creates a new instance of the prototype with the type ID given.
       * @see Factory Pattern
       * @see NetworkEvent::Clone();

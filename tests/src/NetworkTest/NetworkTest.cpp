@@ -22,12 +22,8 @@ bool NetworkTest::Run(int argc, char** argv) {
     dt::Root& root = dt::Root::GetInstance();
     root.Initialize(argc, argv);
 
-    // register event prototype
-    std::shared_ptr<dt::NetworkEvent> ptr(new CustomNetworkEvent(0, CustomNetworkEvent::CLIENT));
-    root.GetNetworkManager()->RegisterNetworkEventPrototype(ptr);
-
     // register event types used in enum
-    root.GetEventManager()->RegEventType("customNetworkEvent", 65536);
+    root.GetEventManager()->RegEventType("CUSTOMNETWORKEVENT", 65536);
 
     bool result = false;
     if(arg2.toLower() == "server") {
@@ -108,7 +104,7 @@ CustomNetworkEvent::CustomNetworkEvent(int data, Sender e)
       mEnum(e) {}
 
 uint32_t CustomNetworkEvent::GetType() const {
-    return customNetworkEvent;
+    return CUSTOMNETWORKEVENT;
 }
 
 std::shared_ptr<dt::Event> CustomNetworkEvent::Clone() const {
@@ -127,7 +123,7 @@ CustomServerEventListener::CustomServerEventListener()
     : mDataReceived(0) {}
 
 void CustomServerEventListener::HandleEvent(std::shared_ptr<dt::Event> e) {
-    if(e->GetType() == customNetworkEvent) {
+    if(e->GetType() == CUSTOMNETWORKEVENT) {
         std::shared_ptr<CustomNetworkEvent> c = std::dynamic_pointer_cast<CustomNetworkEvent>(e);
         if(c->mEnum == CustomNetworkEvent::CLIENT) {
             std::cout << "Server: received CustomNetworkEvent" << std::endl;
@@ -145,7 +141,7 @@ CustomClientEventListener::CustomClientEventListener()
     : mDataReceived(0) {}
 
 void CustomClientEventListener::HandleEvent(std::shared_ptr<dt::Event> e) {
-    if(e->GetType() == customNetworkEvent) {
+    if(e->GetType() == CUSTOMNETWORKEVENT) {
         std::shared_ptr<CustomNetworkEvent> c = std::dynamic_pointer_cast<CustomNetworkEvent>(e);
         if(c->mEnum == CustomNetworkEvent::SERVER) {
             std::cout << "Client: received CustomNetworkEvent" << std::endl;

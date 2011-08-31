@@ -19,8 +19,8 @@ bool EventsTest::Run(int argc, char** argv) {
 
     TestEventListener listener;
 
-    root.GetEventManager()->RegEventType("cancelEvent", 65536);
-    root.GetEventManager()->RegEventType("testEvent", 65537);
+    root.GetEventManager()->RegEventType("CANCELEVENT", 65536);
+    root.GetEventManager()->RegEventType("TESTEVENT", 65537);
 
     root.GetEventManager()->AddListener(&listener);
     root.GetEventManager()->InjectEvent(std::make_shared<TestEvent>());
@@ -57,7 +57,7 @@ QString EventsTest::GetTestName() {
 ////////////////////////////////////////////////////////////////
 
 uint32_t CancelEvent::GetType() const  {
-    return cancelEvent;
+    return CANCELEVENT;
 }
 
 std::shared_ptr<dt::Event> CancelEvent::Clone() const {
@@ -68,7 +68,7 @@ std::shared_ptr<dt::Event> CancelEvent::Clone() const {
 ////////////////////////////////////////////////////////////////
 
 void CancelListener::HandleEvent(std::shared_ptr<dt::Event> e) {
-    if(e->GetType() == cancelEvent) {
+    if(e->GetType() == CANCELEVENT) {
         dt::Logger::Get().Info("CancelListener: Canceling event");
         e->Cancel();
     }
@@ -81,7 +81,7 @@ CancelListener::Priority CancelListener::GetEventPriority() const {
 ////////////////////////////////////////////////////////////////
 
 void NonCancelListener::HandleEvent(std::shared_ptr<dt::Event> e) {
-    if(e->GetType() == cancelEvent) {
+    if(e->GetType() == CANCELEVENT) {
         std::cerr << "Error: NonCancelListener should not receive a CancelEvent." << std::endl;
         exit(1);
     }
@@ -101,7 +101,7 @@ TestEvent::TestEvent() {
 }
 
 uint32_t TestEvent::GetType() const  {
-    return testEvent;
+    return TESTEVENT;
 }
 
 std::shared_ptr<dt::Event> TestEvent::Clone() const {
@@ -112,7 +112,7 @@ std::shared_ptr<dt::Event> TestEvent::Clone() const {
 ////////////////////////////////////////////////////////////////
 
 void TestEventListener::HandleEvent(std::shared_ptr<dt::Event> e) {
-    if(e->GetType() == testEvent) {
+    if(e->GetType() == TESTEVENT) {
         mHasReceivedTestEvent = true;
     }
     mHasReceivedAnEvent = true;

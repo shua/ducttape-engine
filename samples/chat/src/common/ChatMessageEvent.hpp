@@ -13,7 +13,7 @@
 #include <Event/MessageEvent.hpp>
 
 enum ChatEventType : uint32_t {
-    chatMessageEvent = 65536
+    CHATMESSAGEEVENT = 65536
 };
 
 class ChatMessageEvent : public dt::NetworkEvent, public dt::MessageEvent {

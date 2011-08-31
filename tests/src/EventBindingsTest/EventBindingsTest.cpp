@@ -19,11 +19,11 @@ bool EventBindingsTest::Run(int argc, char** argv) {
     root.Initialize(argc, argv);
 
     TestEventListener listener;
-    root.GetEventManager()->RegEventType("testTriggerEvent", 65536);
-    root.GetEventManager()->RegEventType("testBoundEvent", 65537);
+    root.GetEventManager()->RegEventType("TESTTRIGGEREVENT", 65536);
+    root.GetEventManager()->RegEventType("TESTBOUNDEVENT", 65537);
     root.GetEventManager()->AddListener(&listener);
 
-    dt::BindingsManager::Get()->Bind(std::make_shared<dt::SimpleEventBinding>(new TestBoundEvent(42), testTriggerEvent));
+    dt::BindingsManager::Get()->Bind(std::make_shared<dt::SimpleEventBinding>(new TestBoundEvent(42), TESTTRIGGEREVENT));
 
     root.GetEventManager()->InjectEvent(std::make_shared<TestTriggerEvent>());
 
@@ -49,7 +49,7 @@ QString EventBindingsTest::GetTestName() {
 ////////////////////////////////////////////////////////////////
 
 uint32_t TestTriggerEvent::GetType() const  {
-    return testTriggerEvent;
+    return TESTTRIGGEREVENT;
 }
 
 std::shared_ptr<dt::Event> TestTriggerEvent::Clone() const {
@@ -63,7 +63,7 @@ TestBoundEvent::TestBoundEvent(int data)
     : mData(data) {}
 
 uint32_t TestBoundEvent::GetType() const  {
-    return testBoundEvent;
+    return TESTBOUNDEVENT;
 }
 
 std::shared_ptr<dt::Event> TestBoundEvent::Clone() const {
@@ -75,9 +75,9 @@ std::shared_ptr<dt::Event> TestBoundEvent::Clone() const {
 
 void TestEventListener::HandleEvent(std::shared_ptr<dt::Event> e) {
     std::cout << "Received: " << e->GetType() << std::endl;
-    if(e->GetType() == testTriggerEvent) {
+    if(e->GetType() == TESTTRIGGEREVENT) {
         mHasReceivedTriggerEvent = true;
-    } else if(e->GetType() == testBoundEvent) {
+    } else if(e->GetType() == TESTBOUNDEVENT) {
         if(std::dynamic_pointer_cast<TestBoundEvent>(e)->mData == 42) {
             mHasReceivedBoundEvent = true;
         } else {

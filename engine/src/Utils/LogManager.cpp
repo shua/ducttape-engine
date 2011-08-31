@@ -17,8 +17,8 @@ LogManager::LogManager() {}
 void LogManager::Initialize() {
     // Redirect the Ogre log (create a default log)
     mOgreLogManager.createLog("Ogre.log", true, false)->addListener(this);
-    GetLogger("Ogre.log").GetStream("INFO")->SetDisabled(true);
-    GetLogger("Ogre.log").GetStream("DEBUG")->SetDisabled(true);
+    GetLogger("Ogre.log").GetStream("INFO")->SetDisabled(false);
+    GetLogger("Ogre.log").GetStream("DEBUG")->SetDisabled(false);
 
     // The MyGUI LogManager configuration currently is done in Graphics/GuiManager.cpp
     // due to initilization order reasons.

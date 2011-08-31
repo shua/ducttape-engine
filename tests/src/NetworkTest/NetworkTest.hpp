@@ -30,7 +30,7 @@
 namespace NetworkTest {
 
 enum NetworkTestType {
-    customNetworkEvent = 65536
+    CUSTOMNETWORKEVENT = 65536
 };
 
 class NetworkTest : public Test {

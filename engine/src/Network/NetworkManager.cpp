@@ -25,18 +25,6 @@ NetworkManager::~NetworkManager() {}
 void NetworkManager::Initialize() {
     EventManager::Get()->AddListener(this);
 
-    // add all default events as prototypes
-    std::shared_ptr<NetworkEvent> ptr;
-
-    ptr = std::shared_ptr<NetworkEvent>(new HandshakeEvent());
-    RegisterNetworkEventPrototype(ptr);
-
-    ptr = std::shared_ptr<NetworkEvent>(new GoodbyeEvent());
-    RegisterNetworkEventPrototype(ptr);
-
-    ptr = std::shared_ptr<NetworkEvent>(new PingEvent(0));
-    RegisterNetworkEventPrototype(ptr);
-
     // initialize the connections mananger
     mConnectionsManager.Initialize();
 }
@@ -167,10 +155,6 @@ void NetworkManager::HandleEvent(std::shared_ptr<Event> e) {
 
 EventListener::Priority NetworkManager::GetEventPriority() const {
     return EventListener::INTERNAL_HIGHEST;
-}
-
-void NetworkManager::RegisterNetworkEventPrototype(std::shared_ptr<NetworkEvent> event) {
-    mNetworkEventPrototypes.push_back(event);
 }
 
 std::shared_ptr<NetworkEvent> NetworkManager::CreatePrototypeInstance(uint32_t type_id) {

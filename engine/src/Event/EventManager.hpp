@@ -88,7 +88,8 @@ public:
     /**
       * Registers a new string with a generated Id for use in debug to see which id's are taken.
       * Id's < 65536 are engine events.
-      * @param name The string to register. id The Id to register.
+      * @param name The string to register. 
+      * @param id The Id to register.
       * @returns The new Id.
       */
     void RegEventType(const QString& name, uint32_t id);

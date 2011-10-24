@@ -1,5 +1,6 @@
 #include <Graphics/TextComponent.hpp>
 #include <Graphics/ParticleSystemComponent.hpp>
+#include <Graphics/BillboardSetComponent.hpp>
 #include <Scene/Node.hpp>
 #include <Scene/State.hpp>
 

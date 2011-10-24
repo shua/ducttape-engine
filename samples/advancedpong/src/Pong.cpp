@@ -43,6 +43,7 @@ void Main::OnInitialize() {
     dt::ResourceManager::Get()->AddResourceLocation("","FileSystem", true);
     dt::ResourceManager::Get()->AddResourceLocation("sinbad.zip","Zip", true);
     dt::ResourceManager::Get()->AddResourceLocation("particle/","FileSystem", true);
+    dt::ResourceManager::Get()->AddResourceLocation("advancedpong/","FileSystem", true);
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     Ogre::FontManager::getSingleton().load("DejaVuSans", "General");
 
@@ -51,7 +52,7 @@ void Main::OnInitialize() {
     camnode->AddComponent(new dt::CameraComponent("cam"))->LookAt(Ogre::Vector3(0, 0, 0));
 
     dt::Node* lightnode = scene->AddChildNode(new dt::Node("lightnode"));
-    lightnode->SetPosition(Ogre::Vector3(0, 0, 15));
+    lightnode->SetPosition(Ogre::Vector3(0, 0, 12));
     lightnode->AddComponent(new dt::LightComponent("light"));
 
     // generate meshes
@@ -61,9 +62,12 @@ void Main::OnInitialize() {
 
     mGameNode = scene->AddChildNode(new dt::Node("game"));
 
-    mFieldNode = mGameNode->AddChildNode(new dt::Node("field"));
-    mFieldNode->SetPosition(Ogre::Vector3(0, 0, -1));
-    mFieldNode->AddComponent(new dt::MeshComponent("Field", "SimplePongField", "mesh"));
+    dt::Node* FieldNode = scene->AddChildNode(new dt::Node("fieldnode"));
+    FieldNode->SetPosition(Ogre::Vector3(0, 0, 0));
+    FieldNode->AddComponent(new dt::BillboardSetComponent("billboard_test", 1, "fieldbackground.png"));
+    dt::BillboardSetComponent* billboardSetComponent = FieldNode->FindComponent<dt::BillboardSetComponent>("billboard_test");
+    Ogre::BillboardSet* billboardSet = billboardSetComponent->GetOgreBillboardSet();
+    billboardSet->setDefaultDimensions(FIELD_WIDTH, FIELD_HEIGHT);
 
     mBallNode = mGameNode->AddChildNode(new dt::Node("ball"));
     mBallNode->SetPosition(Ogre::Vector3(0, 0, 0));
@@ -101,35 +105,31 @@ void Main::OnInitialize() {
     mesh->SetAnimation("Dance");
     mesh->SetLoopAnimation(true);
     mesh->SetCastShadows(false);
-    mesh->PlayAnimation();
     mOgreNode->SetPosition(Ogre::Vector3(0, 0, -10));
 
-    dt::Node* particleNode = scene->AddChildNode(new dt::Node("particle"));
-    particleNode->SetPosition(Ogre::Vector3(0, 0, 0));
-
-    // create the particle system
-    dt::ParticleSystemComponent* particleSys = particleNode->AddComponent(new dt::ParticleSystemComponent("p_sys"));
+    // create the particle system for the ball
+    dt::ParticleSystemComponent* particleSys = mBallNode->AddComponent(new dt::ParticleSystemComponent("particleSys"));
     particleSys->SetMaterialName("Test/Particle");
     particleSys->SetParticleCountLimit(500);
-    particleSys->GetOgreParticleSystem()->setDefaultDimensions(0.75, 0.75);
+    particleSys->GetOgreParticleSystem()->setDefaultDimensions(1.7, 1.7);
 
     Ogre::ParticleEmitter* emitter = particleSys->AddEmitter("emit1", "Point");
     emitter->setAngle(Ogre::Degree(20));
     emitter->setColour(Ogre::ColourValue(1.f, 0.6f, 0.f), Ogre::ColourValue(0.2f, 0.8f, 0.2f));
-    emitter->setEmissionRate(400);
-    emitter->setParticleVelocity(0.f, 1.5f);
-    emitter->setTimeToLive(0.75f, 1.0f);
+    emitter->setEmissionRate(100);
+    emitter->setParticleVelocity(-1.5f, 1.5f);
+    emitter->setTimeToLive(0.2f, 0.75f);
 
-    particleSys->AddScalerAffector("scaler", 1.75);
-    particleSys->AddLinearForceAffector("force", Ogre::Vector3(0, 5, 0));
+    particleSys->AddScalerAffector("scaler", -1.0);
+    particleSys->AddLinearForceAffector("force", Ogre::Vector3(0, 0, 0));
 
     Ogre::ParticleAffector* affector = particleSys->AddAffector("colour_interpolator", "ColourInterpolator");
     affector->setParameter("time0", "0");
-    affector->setParameter("colour0", "0 1 1 1");
+    affector->setParameter("colour0", "1 1 0 1");
     affector->setParameter("time1", "0.5");
-    affector->setParameter("colour1", "0 0.3 1 1");
+    affector->setParameter("colour1", "1 0.5 0 1");
     affector->setParameter("time2", "1");
-    affector->setParameter("colour2", "0 0 1 0");
+    affector->setParameter("colour2", "1 0 0 0");
 
     ResetBall();
 }

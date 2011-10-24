@@ -1,6 +1,8 @@
 #include <Graphics/TextComponent.hpp>
 #include <Graphics/ParticleSystemComponent.hpp>
 #include <Graphics/BillboardSetComponent.hpp>
+#include <Audio/MusicComponent.hpp>
+#include <Audio/SoundComponent.hpp>
 #include <Scene/Node.hpp>
 #include <Scene/State.hpp>
 
@@ -23,6 +25,8 @@ private:
     dt::Node* mPaddle2Node;
     dt::TextComponent* mScore1Text;
     dt::TextComponent* mScore2Text;
+	dt::SoundComponent* sound_component;
+	dt::MusicComponent* music_component;
     int mScore1;
     int mScore2;
 

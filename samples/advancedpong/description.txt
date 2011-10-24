@@ -1,1 +1,2 @@
-A very simple pong game. No network, no effects, no physics, nothing special.
+An advanced version of the simple pong sample. Uses every
+feature currently supported by ducttape in milestone 0.2.

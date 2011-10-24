@@ -1,4 +1,5 @@
 #include <Graphics/TextComponent.hpp>
+#include <Graphics/ParticleSystemComponent.hpp>
 #include <Scene/Node.hpp>
 #include <Scene/State.hpp>
 
@@ -16,6 +17,7 @@ private:
     dt::Node* mGameNode;
     dt::Node* mFieldNode;
     dt::Node* mBallNode;
+	dt::Node* mOgreNode;
     dt::Node* mPaddle1Node;
     dt::Node* mPaddle2Node;
     dt::TextComponent* mScore1Text;

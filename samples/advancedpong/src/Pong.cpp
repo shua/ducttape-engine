@@ -13,6 +13,8 @@
 
 #include <OgreProcedural.h>
 
+#include <OgreParticleAffector.h>
+
 float FIELD_WIDTH = 24;
 float FIELD_HEIGHT = 16;
 float PADDLE_SIZE = 3.0;
@@ -24,7 +26,8 @@ void Main::ResetBall() {
         mBallSpeed = Ogre::Vector3::ZERO;
         QString p(mScore1 == 10 ? "left" : "right");
         GetScene("testscene")->FindChildNode("info")->FindComponent<dt::TextComponent>("text")->SetText("The " % p % " player wins the game.");
-    }
+	    mOgreNode->SetPosition(Ogre::Vector3(0, 0, 10));
+	}
     mBallNode->SetPosition(Ogre::Vector3(0,0,0));
     mScore1Text->SetText(dt::Utils::ToString(mScore1));
     mScore2Text->SetText(dt::Utils::ToString(mScore2));
@@ -38,6 +41,8 @@ void Main::OnInitialize() {
     OgreProcedural::Root::getInstance()->sceneManager = scene->GetSceneManager();
 
     dt::ResourceManager::Get()->AddResourceLocation("","FileSystem", true);
+	dt::ResourceManager::Get()->AddResourceLocation("sinbad.zip","Zip", true);
+	dt::ResourceManager::Get()->AddResourceLocation("particle/","FileSystem", true);
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     Ogre::FontManager::getSingleton().load("DejaVuSans", "General");
 
@@ -46,7 +51,7 @@ void Main::OnInitialize() {
     camnode->AddComponent(new dt::CameraComponent("cam"))->LookAt(Ogre::Vector3(0, 0, 0));
 
     dt::Node* lightnode = scene->AddChildNode(new dt::Node("lightnode"));
-    lightnode->SetPosition(Ogre::Vector3(-20, 20, 10));
+    lightnode->SetPosition(Ogre::Vector3(0, 0, 15));
     lightnode->AddComponent(new dt::LightComponent("light"));
 
     // generate meshes
@@ -73,22 +78,58 @@ void Main::OnInitialize() {
     mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "mesh"));
 
     dt::Node* score1_node = mGameNode->AddChildNode(new dt::Node("score1"));
-    score1_node->SetPosition(Ogre::Vector3(-10, FIELD_HEIGHT / 2 + 2, 0));
+    score1_node->SetPosition(Ogre::Vector3(-10, FIELD_HEIGHT / 2 + 2, 1));
     mScore1Text = score1_node->AddComponent(new dt::TextComponent("0", "text"));
     mScore1Text->SetFont("DejaVuSans");
     mScore1Text->SetFontSize(64);
 
     dt::Node* score2_node = mGameNode->AddChildNode(new dt::Node("score2"));
-    score2_node->SetPosition(Ogre::Vector3(10, FIELD_HEIGHT / 2 + 2, 0));
+    score2_node->SetPosition(Ogre::Vector3(10, FIELD_HEIGHT / 2 + 2, 1));
     mScore2Text = score2_node->AddComponent(new dt::TextComponent("0", "text"));
     mScore2Text->SetFont("DejaVuSans");
     mScore2Text->SetFontSize(64);
 
     dt::Node* info_node = scene->AddChildNode(new dt::Node("info"));
-    info_node->SetPosition(Ogre::Vector3(0, - FIELD_HEIGHT / 2 - 3, 0));
+    info_node->SetPosition(Ogre::Vector3(0, - FIELD_HEIGHT / 2 - 3, 1));
     dt::TextComponent* info_text = info_node->AddComponent(new dt::TextComponent("Left player: W/S -- Right player: Up/Down", "text"));
     info_text->SetFont("DejaVuSans");
     info_text->SetFontSize(20);
+
+	mOgreNode = mGameNode->AddChildNode(new dt::Node("meshnode"));
+    dt::MeshComponent* mesh = new dt::MeshComponent("Sinbad.mesh");
+    mOgreNode->AddComponent(mesh);
+    mesh->SetAnimation("Dance");
+    mesh->SetLoopAnimation(true);
+    mesh->SetCastShadows(false);
+    mesh->PlayAnimation();
+	mOgreNode->SetPosition(Ogre::Vector3(0, 0, -10));
+
+	dt::Node* particleNode = scene->AddChildNode(new dt::Node("particle"));
+	particleNode->SetPosition(Ogre::Vector3(0, 0, 0));
+
+	// create the particle system
+    dt::ParticleSystemComponent* particleSys = particleNode->AddComponent(new dt::ParticleSystemComponent("p_sys"));
+    particleSys->SetMaterialName("Test/Particle");
+    particleSys->SetParticleCountLimit(500);
+    particleSys->GetOgreParticleSystem()->setDefaultDimensions(0.75, 0.75);
+
+    Ogre::ParticleEmitter* emitter = particleSys->AddEmitter("emit1", "Point");
+    emitter->setAngle(Ogre::Degree(20));
+    emitter->setColour(Ogre::ColourValue(1.f, 0.6f, 0.f), Ogre::ColourValue(0.2f, 0.8f, 0.2f));
+    emitter->setEmissionRate(400);
+    emitter->setParticleVelocity(0.f, 1.5f);
+    emitter->setTimeToLive(0.75f, 1.0f);
+
+    particleSys->AddScalerAffector("scaler", 1.75);
+	particleSys->AddLinearForceAffector("force", Ogre::Vector3(0, 5, 0));
+
+    Ogre::ParticleAffector* affector = particleSys->AddAffector("colour_interpolator", "ColourInterpolator");
+    affector->setParameter("time0", "0");
+    affector->setParameter("colour0", "0 1 1 1");
+    affector->setParameter("time1", "0.5");
+    affector->setParameter("colour1", "0 0.3 1 1");
+    affector->setParameter("time2", "1");
+    affector->setParameter("colour2", "0 0 1 0");
 
     ResetBall();
 }
@@ -164,9 +205,11 @@ void Main::UpdateStateFrame(double simulation_frame_time) {
 
     mBallNode->SetPosition(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
 
+	/*
     Ogre::Quaternion q;
     q.FromAngleAxis(Ogre::Radian(Ogre::Math::Cos(Ogre::Radian(dt::Root::GetInstance().GetTimeSinceInitialize() * 0.2))) * 0.1, Ogre::Vector3::UNIT_X);
     Ogre::Quaternion w;
     w.FromAngleAxis(Ogre::Radian(Ogre::Math::Sin(Ogre::Radian(dt::Root::GetInstance().GetTimeSinceInitialize() * 0.2))) * 0.1, Ogre::Vector3::UNIT_Y);
     mGameNode->SetRotation(q * w);
+	*/
 }

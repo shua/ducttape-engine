@@ -38,7 +38,7 @@ void Main::OnInitialize() {
     mScore2 = 0;
 
     dt::Scene* scene = AddScene(new dt::Scene("testscene"));
-	scene->GetPhysicsWorld()->SetGravity(Ogre::Vector3(0, 0, 0));
+    scene->GetPhysicsWorld()->SetGravity(Ogre::Vector3(0, 0, 0));
     OgreProcedural::Root::getInstance()->sceneManager = scene->GetSceneManager();
 
     dt::ResourceManager::Get()->AddResourceLocation("","FileSystem", true);
@@ -89,12 +89,12 @@ void Main::OnInitialize() {
     mPaddle1Node = mGameNode->AddChildNode(new dt::Node("paddle1"));
     mPaddle1Node->SetPosition(Ogre::Vector3(- FIELD_WIDTH / 2 - 0.5, 0, 0));
     mPaddle1Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle1mesh"));
-	mPaddle1Node->AddComponent(new dt::PhysicsBodyComponent("paddle1mesh", "paddle1-body"));
+    mPaddle1Node->AddComponent(new dt::PhysicsBodyComponent("paddle1mesh", "paddle1-body"));
 
     mPaddle2Node = mGameNode->AddChildNode(new dt::Node("paddle2"));
     mPaddle2Node->SetPosition(Ogre::Vector3(FIELD_WIDTH / 2 + 0.5, 0, 0));
     mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle2mesh"));
-	mPaddle2Node->AddComponent(new dt::PhysicsBodyComponent("paddle2mesh", "paddle2-body"));
+    mPaddle2Node->AddComponent(new dt::PhysicsBodyComponent("paddle2mesh", "paddle2-body"));
 
     dt::Node* score1_node = mGameNode->AddChildNode(new dt::Node("score1"));
     score1_node->SetPosition(Ogre::Vector3(-10, FIELD_HEIGHT / 2 + 2, 1));
@@ -120,7 +120,7 @@ void Main::OnInitialize() {
     mesh->SetAnimation("Dance");
     mesh->SetLoopAnimation(true);
     mesh->SetCastShadows(false);
-	//mesh->PlayAnimation(); will only play animation when the game is won by either player
+    //mesh->PlayAnimation(); will only play animation when the game is won by either player
     mOgreNode->SetPosition(Ogre::Vector3(0, 0, -10));
 
     // create the particle system for the ball
@@ -153,7 +153,7 @@ void Main::OnInitialize() {
 void Main::UpdateStateFrame(double simulation_frame_time) {
 
     /*
-	mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
+    mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
 
     // move paddle 1
     float move1 = 0;

@@ -1,14 +1,11 @@
 #include "Pong.hpp"
-
 #include <Core/Root.hpp>
 #include <Graphics/LightComponent.hpp>
-#include <Graphics/MeshComponent.hpp>
 #include <Graphics/CameraComponent.hpp>
 #include <Scene/Scene.hpp>
 #include <Utils/Utils.hpp>
 #include <Input/InputManager.hpp>
 #include <Core/ResourceManager.hpp>
-
 #include <OgreFontManager.h>
 
 #include <OgreProcedural.h>
@@ -26,6 +23,7 @@ void Main::ResetBall() {
     } else {
         mBallSpeed = Ogre::Vector3::ZERO;
         music_component->PlayMusic();
+        mesh->PlayAnimation();
         QString p(mScore1 == 10 ? "left" : "right");
         GetScene("testscene")->FindChildNode("info")->FindComponent<dt::TextComponent>("text")->SetText("The " % p % " player wins the game.");
 	    mOgreNode->SetPosition(Ogre::Vector3(0, 0, 10));
@@ -40,6 +38,7 @@ void Main::OnInitialize() {
     mScore2 = 0;
 
     dt::Scene* scene = AddScene(new dt::Scene("testscene"));
+	scene->GetPhysicsWorld()->SetGravity(Ogre::Vector3(0, 0, 0));
     OgreProcedural::Root::getInstance()->sceneManager = scene->GetSceneManager();
 
     dt::ResourceManager::Get()->AddResourceLocation("","FileSystem", true);
@@ -81,6 +80,7 @@ void Main::OnInitialize() {
     mBallNode = mGameNode->AddChildNode(new dt::Node("ball"));
     mBallNode->SetPosition(Ogre::Vector3(0, 0, 0));
     mBallNode->AddComponent(new dt::MeshComponent("Ball", "SimplePongBall", "mesh"));
+    mBallNode->AddComponent(new dt::PhysicsBodyComponent("mesh", "ball-body"));
 
     dt::Node* lightnode = mGameNode->AddChildNode(new dt::Node("lightnode"));
     lightnode->SetPosition(Ogre::Vector3(0, 0, 15));
@@ -88,11 +88,13 @@ void Main::OnInitialize() {
 
     mPaddle1Node = mGameNode->AddChildNode(new dt::Node("paddle1"));
     mPaddle1Node->SetPosition(Ogre::Vector3(- FIELD_WIDTH / 2 - 0.5, 0, 0));
-    mPaddle1Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "mesh"));
+    mPaddle1Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle1mesh"));
+	mPaddle1Node->AddComponent(new dt::PhysicsBodyComponent("paddle1mesh", "paddle1-body"));
 
     mPaddle2Node = mGameNode->AddChildNode(new dt::Node("paddle2"));
     mPaddle2Node->SetPosition(Ogre::Vector3(FIELD_WIDTH / 2 + 0.5, 0, 0));
-    mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "mesh"));
+    mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle2mesh"));
+	mPaddle2Node->AddComponent(new dt::PhysicsBodyComponent("paddle2mesh", "paddle2-body"));
 
     dt::Node* score1_node = mGameNode->AddChildNode(new dt::Node("score1"));
     score1_node->SetPosition(Ogre::Vector3(-10, FIELD_HEIGHT / 2 + 2, 1));
@@ -113,12 +115,12 @@ void Main::OnInitialize() {
     info_text->SetFontSize(20);
 
     mOgreNode = mGameNode->AddChildNode(new dt::Node("meshnode"));
-    dt::MeshComponent* mesh = new dt::MeshComponent("Sinbad.mesh");
+    mesh = new dt::MeshComponent("Sinbad.mesh");
     mOgreNode->AddComponent(mesh);
     mesh->SetAnimation("Dance");
     mesh->SetLoopAnimation(true);
     mesh->SetCastShadows(false);
-	mesh->PlayAnimation();
+	//mesh->PlayAnimation(); will only play animation when the game is won by either player
     mOgreNode->SetPosition(Ogre::Vector3(0, 0, -10));
 
     // create the particle system for the ball
@@ -149,7 +151,9 @@ void Main::OnInitialize() {
 }
 
 void Main::UpdateStateFrame(double simulation_frame_time) {
-    mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
+
+    /*
+	mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
 
     // move paddle 1
     float move1 = 0;
@@ -181,15 +185,10 @@ void Main::UpdateStateFrame(double simulation_frame_time) {
     }
 
     float new_y2 = mPaddle2Node->GetPosition().y + move2 * simulation_frame_time * 8;
-    if(new_y2 > FIELD_HEIGHT / 2 - PADDLE_SIZE / 2)
-        new_y2 = FIELD_HEIGHT / 2 - PADDLE_SIZE / 2;
-    else if(new_y2 < - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2)
-        new_y2 = - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2;
+    if(new_y2 > FIELD_HEIGHT / 2 - PADDLE_SIZE / 2)new_y2 = FIELD_HEIGHT / 2 - PADDLE_SIZE / 2;
+    else if(new_y2 < - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2)new_y2 = - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2;
 
-    mPaddle2Node->SetPosition(Ogre::Vector3(
-                mPaddle2Node->GetPosition().x,
-                new_y2,
-                mPaddle2Node->GetPosition().z));
+    mPaddle2Node->SetPosition(Ogre::Vector3(mPaddle2Node->GetPosition().x,new_y2,mPaddle2Node->GetPosition().z));
 
     // move ball
     Ogre::Vector3 newpos(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
@@ -224,7 +223,7 @@ void Main::UpdateStateFrame(double simulation_frame_time) {
 
     mBallNode->SetPosition(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
 
-    /*
+    
     Ogre::Quaternion q;
     q.FromAngleAxis(Ogre::Radian(Ogre::Math::Cos(Ogre::Radian(dt::Root::GetInstance().GetTimeSinceInitialize() * 0.2))) * 0.1, Ogre::Vector3::UNIT_X);
     Ogre::Quaternion w;

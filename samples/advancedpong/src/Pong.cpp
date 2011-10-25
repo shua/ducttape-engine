@@ -25,8 +25,12 @@ void Main::ResetBall() {
         music_component->PlayMusic();
         mesh->PlayAnimation();
         QString p(mScore1 == 10 ? "left" : "right");
+<<<<<<< HEAD
         GetScene("testscene")->FindChildNode("info")->FindComponent<dt::TextComponent>("text")->SetText("The " % p % " player wins the game.");
 	    mOgreNode->SetPosition(Ogre::Vector3(0, 0, 10));
+=======
+        GetScene("testscene")->FindChildNode("info")->FindComponent<dt::TextComponent>("text")->SetText("The " + p + " player wins the game.");
+>>>>>>> 79a5040da23f7b10480246be5273cd0b037922b2
     }
     mBallNode->SetPosition(Ogre::Vector3(0,0,0));
     mScore1Text->SetText(dt::Utils::ToString(mScore1));

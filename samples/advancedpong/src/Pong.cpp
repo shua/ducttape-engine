@@ -54,7 +54,6 @@ void Main::OnInitialize() {
 
     // generate meshes
     OgreProcedural::BoxGenerator().setSizeX(FIELD_WIDTH + 1).setSizeY(FIELD_HEIGHT).setSizeZ(1.f).realizeMesh("Field");
-    //OgreProcedural::BoxGenerator().setSizeX(1.0).setSizeY(1.f).setSizeZ(1.f).realizeMesh("Ball");
     OgreProcedural::BoxGenerator().setSizeX(1.0).setSizeY(3.f).setSizeZ(1.f).realizeMesh("Paddle");
 	OgreProcedural::SphereGenerator().setRadius(0.65).setNumRings(10).setNumSegments(16).realizeMesh("Ball");
 
@@ -120,10 +119,10 @@ void Main::OnInitialize() {
     mesh->SetAnimation("Dance");
     mesh->SetLoopAnimation(true);
     mesh->SetCastShadows(false);
-    //mesh->PlayAnimation(); will only play animation when the game is won by either player
+    //mesh->PlayAnimation(); will only play animation when the game is won by either player, check line 26
     mOgreNode->SetPosition(Ogre::Vector3(0, 0, -10));
 
-    // create the particle system for the ball
+    // create the particle system for the ball, in this case a cool flame effect
     dt::ParticleSystemComponent* particleSys = mBallNode->AddComponent(new dt::ParticleSystemComponent("particleSys"));
     particleSys->SetMaterialName("Test/Particle");
     particleSys->SetParticleCountLimit(500);

@@ -38,7 +38,7 @@ void Main::OnInitialize() {
     mScore2 = 0;
 
     dt::Scene* scene = AddScene(new dt::Scene("testscene"));
-    scene->GetPhysicsWorld()->SetGravity(Ogre::Vector3(0, 0, 0));
+    scene->GetPhysicsWorld()->SetGravity(Ogre::Vector3(0, 0, -1));
     OgreProcedural::Root::getInstance()->sceneManager = scene->GetSceneManager();
 
     dt::ResourceManager::Get()->AddResourceLocation("","FileSystem", true);
@@ -55,45 +55,46 @@ void Main::OnInitialize() {
     // generate meshes
     OgreProcedural::BoxGenerator().setSizeX(FIELD_WIDTH + 1).setSizeY(FIELD_HEIGHT).setSizeZ(1.f).realizeMesh("Field");
     OgreProcedural::BoxGenerator().setSizeX(1.0).setSizeY(3.f).setSizeZ(1.f).realizeMesh("Paddle");
-	OgreProcedural::SphereGenerator().setRadius(0.65).setNumRings(10).setNumSegments(16).realizeMesh("Ball");
+    OgreProcedural::SphereGenerator().setRadius(0.65).setNumRings(10).setNumSegments(16).realizeMesh("Ball");
 
     mGameNode = scene->AddChildNode(new dt::Node("game"));
 
     dt::Node* music_node = scene->AddChildNode(new dt::Node("music"));
     music_component = music_node->AddComponent(new dt::MusicComponent(music_file));
-	music_component->StopMusic();
+    music_component->StopMusic();
 
     dt::Node* hitsound = scene->AddChildNode(new dt::Node("hitsound"));
     sound_component = new dt::SoundComponent("ballhit.wav");
     hitsound->AddComponent(sound_component);
     sound_component->SetMasterVolume(100.0f);
     
-
     dt::Node* FieldNode = scene->AddChildNode(new dt::Node("fieldnode"));
-    FieldNode->SetPosition(Ogre::Vector3(0, 0, 0));
-    FieldNode->AddComponent(new dt::BillboardSetComponent("billboard_test", 1, "fieldbackground.png"));
+    FieldNode->SetPosition(Ogre::Vector3(0, 0, -1));
+    FieldNode->AddComponent(new dt::MeshComponent("Field", "playingfield", "fieldmesh"));
+    FieldNode->AddComponent(new dt::PhysicsBodyComponent("fieldmesh", "field-body"))->SetMass(0.f);;
+    /* FieldNode->AddComponent(new dt::BillboardSetComponent("billboard_test", 1, "fieldbackground.png"));
     dt::BillboardSetComponent* billboardSetComponent = FieldNode->FindComponent<dt::BillboardSetComponent>("billboard_test");
     Ogre::BillboardSet* billboardSet = billboardSetComponent->GetOgreBillboardSet();
-    billboardSet->setDefaultDimensions(FIELD_WIDTH, FIELD_HEIGHT);
-
-    mBallNode = mGameNode->AddChildNode(new dt::Node("ball"));
-    mBallNode->SetPosition(Ogre::Vector3(0, 0, 0));
-    mBallNode->AddComponent(new dt::MeshComponent("Ball", "SimplePongBall", "mesh"));
-    mBallNode->AddComponent(new dt::PhysicsBodyComponent("mesh", "ball-body"));
+    billboardSet->setDefaultDimensions(FIELD_WIDTH, FIELD_HEIGHT); */
 
     dt::Node* lightnode = mGameNode->AddChildNode(new dt::Node("lightnode"));
     lightnode->SetPosition(Ogre::Vector3(0, 0, 15));
     lightnode->AddComponent(new dt::LightComponent("light"));
 
+    mBallNode = mGameNode->AddChildNode(new dt::Node("ball"));
+    mBallNode->SetPosition(Ogre::Vector3(0, 0, 0));
+    mBallNode->AddComponent(new dt::MeshComponent("Ball", "SimplePongBall", "ballmesh"));
+    mBallNode->AddComponent(new dt::PhysicsBodyComponent("ballmesh", "ball-body"));
+
     mPaddle1Node = mGameNode->AddChildNode(new dt::Node("paddle1"));
     mPaddle1Node->SetPosition(Ogre::Vector3(- FIELD_WIDTH / 2 - 0.5, 0, 0));
     mPaddle1Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle1mesh"));
-    mPaddle1Node->AddComponent(new dt::PhysicsBodyComponent("paddle1mesh", "paddle1-body"));
+    mPaddle1Node->AddComponent(new dt::PhysicsBodyComponent("paddle1mesh", "paddle-1-body"));
 
     mPaddle2Node = mGameNode->AddChildNode(new dt::Node("paddle2"));
     mPaddle2Node->SetPosition(Ogre::Vector3(FIELD_WIDTH / 2 + 0.5, 0, 0));
-    mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle", "paddle2mesh"));
-    mPaddle2Node->AddComponent(new dt::PhysicsBodyComponent("paddle2mesh", "paddle2-body"));
+    mPaddle2Node->AddComponent(new dt::MeshComponent("Paddle", "SimplePongPaddle2", "paddle2mesh"));
+    mPaddle2Node->AddComponent(new dt::PhysicsBodyComponent("paddle2mesh", "paddle-2-body"));
 
     dt::Node* score1_node = mGameNode->AddChildNode(new dt::Node("score1"));
     score1_node->SetPosition(Ogre::Vector3(-10, FIELD_HEIGHT / 2 + 2, 1));
@@ -151,82 +152,4 @@ void Main::OnInitialize() {
 
 void Main::UpdateStateFrame(double simulation_frame_time) {
 
-    /*
-    mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
-
-    // move paddle 1
-    float move1 = 0;
-    if(dt::InputManager::Get()->GetKeyboard()->isKeyDown(OIS::KC_W)) {
-        move1 += 2;
-    }
-    if(dt::InputManager::Get()->GetKeyboard()->isKeyDown(OIS::KC_S)) {
-        move1 -= 2;
-    }
-    float new_y1 = mPaddle1Node->GetPosition().y + move1 * simulation_frame_time * 8;
-    if(new_y1 > FIELD_HEIGHT / 2 - PADDLE_SIZE / 2)
-        new_y1 = FIELD_HEIGHT / 2 - PADDLE_SIZE / 2;
-    else if(new_y1 < - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2)
-        new_y1 = - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2;
-
-    mPaddle1Node->SetPosition(Ogre::Vector3(
-                mPaddle1Node->GetPosition().x,
-                new_y1,
-                mPaddle1Node->GetPosition().z));
-
-    // move paddle 2
-    float move2 = 0;
-    if(dt::InputManager::Get()->GetKeyboard()->isKeyDown(OIS::KC_UP)) {
-        move2 += 2;
-    }
-
-    if(dt::InputManager::Get()->GetKeyboard()->isKeyDown(OIS::KC_DOWN)) {
-        move2 -= 2;
-    }
-
-    float new_y2 = mPaddle2Node->GetPosition().y + move2 * simulation_frame_time * 8;
-    if(new_y2 > FIELD_HEIGHT / 2 - PADDLE_SIZE / 2)new_y2 = FIELD_HEIGHT / 2 - PADDLE_SIZE / 2;
-    else if(new_y2 < - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2)new_y2 = - FIELD_HEIGHT / 2  + PADDLE_SIZE / 2;
-
-    mPaddle2Node->SetPosition(Ogre::Vector3(mPaddle2Node->GetPosition().x,new_y2,mPaddle2Node->GetPosition().z));
-
-    // move ball
-    Ogre::Vector3 newpos(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
-    if(newpos.y >= FIELD_HEIGHT / 2 - 0.5 || newpos.y <= -FIELD_HEIGHT / 2 + 0.5) {
-        mBallSpeed.y *= -1;
-        //sound_component->PlaySound(); <- somtimes won't play if the sound was played just before, for example if it hits the wall, then the paddle immediately it won't play the sound when it hits the paddle.
-    }
-
-    if(newpos.x >= FIELD_WIDTH / 2 - 0.5) {
-        float paddle_y = mPaddle2Node->GetPosition().y;
-        if(newpos.y < paddle_y - PADDLE_SIZE / 2 - 0.5 || newpos.y > paddle_y + PADDLE_SIZE / 2 + 0.5) {
-            dt::Logger::Get().Info(" Right Player lost!");
-            ++mScore1;
-            ResetBall();
-        } else {
-            mBallSpeed.x *= 1.1;
-            mBallSpeed.x *= -1;
-            sound_component->PlaySound();
-        }
-    } else if(newpos.x <= -FIELD_WIDTH / 2 + 0.5) {
-        float paddle_y = mPaddle1Node->GetPosition().y;
-        if(newpos.y < paddle_y - PADDLE_SIZE / 2 - 0.5 || newpos.y > paddle_y + PADDLE_SIZE / 2 + 0.5) {
-            dt::Logger::Get().Info(" Left Player lost!");
-            ++mScore2;
-            ResetBall();
-        } else {
-            mBallSpeed.x *= 1.1;
-            mBallSpeed.x *= -1;
-            sound_component->PlaySound();
-        }
-    }
-
-    mBallNode->SetPosition(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
-
-    
-    Ogre::Quaternion q;
-    q.FromAngleAxis(Ogre::Radian(Ogre::Math::Cos(Ogre::Radian(dt::Root::GetInstance().GetTimeSinceInitialize() * 0.2))) * 0.1, Ogre::Vector3::UNIT_X);
-    Ogre::Quaternion w;
-    w.FromAngleAxis(Ogre::Radian(Ogre::Math::Sin(Ogre::Radian(dt::Root::GetInstance().GetTimeSinceInitialize() * 0.2))) * 0.1, Ogre::Vector3::UNIT_Y);
-    mGameNode->SetRotation(q * w);
-    */
 }

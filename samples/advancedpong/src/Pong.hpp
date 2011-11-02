@@ -22,13 +22,13 @@ private:
     dt::Node* mGameNode;
     dt::Node* mFieldNode;
     dt::Node* mBallNode;
-	dt::Node* mOgreNode;
+    dt::Node* mOgreNode;
     dt::Node* mPaddle1Node;
     dt::Node* mPaddle2Node;
     dt::TextComponent* mScore1Text;
     dt::TextComponent* mScore2Text;
-	dt::SoundComponent* sound_component;
-	dt::MusicComponent* music_component;
+    dt::SoundComponent* sound_component;
+    dt::MusicComponent* music_component;
     dt::MeshComponent* mesh;
     int mScore1;
     int mScore2;

@@ -6,12 +6,12 @@
 // http://www.gnu.org/licenses/lgpl.html
 // ----------------------------------------------------------------------------
 
-#include "Pong.hpp"
+#include "AdvancedPong.hpp"
 
 #include <Scene/Game.hpp>
 
 int main(int argc, char** argv) {
     dt::Game game;
-    game.Run(new Main(), argc, argv);
+    game.Run(new MainScreen(), argc, argv);
     return 0;
 }

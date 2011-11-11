@@ -51,8 +51,6 @@ void GuiManager::Initialize() {
         mGuiSystem = new MyGUI::Gui();
         mGuiSystem->initialise();
 
-//        EventManager::Get()->AddListener(this);
-
         // Show / hide the mouse cursor.
         SetMouseCursorVisible(mMouseCursorVisible);
 

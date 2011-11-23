@@ -23,7 +23,7 @@ public:
     Player();
     Player(float field_width, float field_height, float paddle_size, QString name);
 
-    bool checkCollision(Ogre::Vector3 ball_pos);
+    float checkCollision(Ogre::Vector3 ball_pos);
     float GetPaddleSize();
 
     void SetBallPtr(dt::Node* ball);

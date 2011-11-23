@@ -12,8 +12,6 @@
 #include <Config.hpp>
 
 #include <Core/Manager.hpp>
-//#include <Event/Event.hpp>
-//#include <Event/EventListener.hpp>
 #include <Physics/PhysicsWorld.hpp>
 
 #include <boost/ptr_container/ptr_map.hpp>

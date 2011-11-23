@@ -29,10 +29,15 @@ float Player::GetPaddleSize() {
     return mPaddleSize;
 }
 
-bool Player::checkCollision(Ogre::Vector3 ball_pos) {
-    //dt::Logger::Get().Debug(dt::Utils::ToString(ball_pos.z) % " : " % dt::Utils::ToString(this->GetPosition(this->PARENT).z));
+float Player::checkCollision(Ogre::Vector3 ball_pos) {
     if (ball_pos.z <= GetPosition().z + mPaddleSize / 2 && ball_pos.z >= GetPosition().z - mPaddleSize / 2) {
-        return true;
+        //      get relative position of ball |  normalize it |   * by max deg | and add 1 so we don't accidently return 0
+        float newBallDir = ((ball_pos.z - GetPosition().z) / (mPaddleSize / 2) * 70) + 1;
+        if(newBallDir==0){
+            // can't have it returning false, though the chances of you hitting exactly in the middle of the paddle are very slim.
+            newBallDir=0.1;
+        }
+        return newBallDir;
     } else {
         return false;
     }

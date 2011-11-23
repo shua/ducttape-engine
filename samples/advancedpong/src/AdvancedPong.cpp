@@ -113,14 +113,22 @@ void AdvancedPong::InitializePlayers() {
 
 void AdvancedPong::ResetBall() {
     if (mScore1 < 10 && mScore2 < 10) {
-        mBallSpeed = Ogre::Vector3(4, 0, 3);
+        mBallSpeed = Ogre::Vector3(1, 3, 1);
     } else {
         mBallSpeed = Ogre::Vector3::ZERO;
+        mBallSpeed.y = 1;
         mMusicComponent->PlayMusic();
         //mMesh->PlayAnimation();
         //QString winner(mScore1 == 10 ? "left" : "right");
         //mOgreNode->SetPosition(Ogre::Vector3(0, 10, 0));
     }
+    btRigidBody* ball_phys_body = mBallNode->FindComponent<dt::PhysicsBodyComponent>("ballbody")->GetRigidBody();
+    btTransform ball_phys_trans;
+    ball_phys_body->getMotionState()->getWorldTransform(ball_phys_trans);
+    ball_phys_trans.getOrigin() = btVector3(0,
+                                            0,
+                                            0);
+    ball_phys_body->getMotionState()->setWorldTransform(ball_phys_trans);
     mBallNode->SetPosition(Ogre::Vector3(0, 0, 0));
     mScore1Text->SetText(dt::Utils::ToString(mScore1));
     mScore2Text->SetText(dt::Utils::ToString(mScore2));
@@ -167,6 +175,11 @@ void AdvancedPong::OnInitialize() {
     mBallNode = mGameNode->AddChildNode(new dt::Node("ball"));
     mBallNode->SetPosition(0, -1, 0);
     mBallNode->AddComponent(new dt::MeshComponent("Ball", "ball", "ballmesh"));
+    dt::PhysicsBodyComponent* ball_phys = mBallNode->AddComponent(new dt::PhysicsBodyComponent("ballmesh", "ballbody"));
+    ball_phys->SetMass(0);
+    btRigidBody* ball_phys_body = ball_phys->GetRigidBody();
+    ball_phys_body->setCollisionFlags(ball_phys_body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    ball_phys_body->setActivationState(DISABLE_DEACTIVATION);
     dt::ParticleSystemComponent* ball_p = mBallNode->AddComponent(new dt::ParticleSystemComponent("ball_p"));
     ball_p->SetMaterialName("Test/Particle");
     ball_p->SetParticleCountLimit(500);
@@ -250,6 +263,9 @@ void AdvancedPong::KeyPressed(const OIS::KeyEvent& event) {
             }
         }
     }
+    if(event.key == OIS::KC_R) {
+        ResetBall();
+    }
 }
 
 void AdvancedPong::UpdateStateFrame(double simulation_frame_time) {
@@ -257,7 +273,7 @@ void AdvancedPong::UpdateStateFrame(double simulation_frame_time) {
         emit UpdateFrameSignal(simulation_frame_time);
 
         // move ball
-        mBallSpeed *= 1.0 + (simulation_frame_time * 0.05);
+        mBallSpeed.y *= 1.0 + (simulation_frame_time * 0.05);
 
       Ogre::Vector3 newpos(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
       if((newpos.z >= (FIELD_HEIGHT / 2 - 0.5)) || (newpos.z <= (- FIELD_HEIGHT / 2 + 0.5))) {
@@ -265,24 +281,41 @@ void AdvancedPong::UpdateStateFrame(double simulation_frame_time) {
         }
         //mInfoText->SetText(dt::Utils::ToString(mPlayer1->GetPosition().z));
         if(newpos.x <= (- FIELD_WIDTH / 2 + 0.5)) {
-            if(!mPlayer1->checkCollision(mBallNode->GetPosition())) {
+            float newBallDir = mPlayer1->checkCollision(mBallNode->GetPosition());
+            if(!newBallDir) {
                 dt::Logger::Get().Info(mPlayer1->GetName() + " lost!");
                 ++mScore1;
                 ResetBall();
             } else {
-                mBallSpeed.x *= -1;
+                mBallSpeed.z = Ogre::Math::Sin(Ogre::Degree(newBallDir).valueRadians());
+                mBallSpeed.x = Ogre::Math::Cos(Ogre::Degree(newBallDir).valueRadians());
             }
         } else if (newpos.x >= (FIELD_WIDTH / 2 - 0.5)) {
-            if(!mPlayer2->checkCollision(mBallNode->GetPosition())) {
+            float newBallDir = mPlayer2->checkCollision(mBallNode->GetPosition());
+            if(!newBallDir) {
                 dt::Logger::Get().Info(mPlayer2->GetName() + " lost!");
                 ++mScore2;
                 ResetBall();
             } else {
-                mBallSpeed.x *= -1;
+                mBallSpeed.z = Ogre::Math::Sin(Ogre::Degree(newBallDir).valueRadians());
+                mBallSpeed.x = -Ogre::Math::Cos(Ogre::Degree(newBallDir).valueRadians());
+                /* dt::Logger::Get().Debug("newBallDir: " % dt::Utils::ToString(newBallDir) %
+                                        " | mBallSpeed: " % dt::Utils::ToString(mBallSpeed.x) %
+                                        " , " % dt::Utils::ToString(mBallSpeed.y) %
+                                        " , " % dt::Utils::ToString(mBallSpeed.z)); */
             }
         }
+        btRigidBody* ball_phys_body = mBallNode->FindComponent<dt::PhysicsBodyComponent>("ballbody")->GetRigidBody();
+        btTransform ball_phys_trans;
+        ball_phys_body->getMotionState()->getWorldTransform(ball_phys_trans);
+        ball_phys_trans.getOrigin() += btVector3(mBallSpeed.x * mBallSpeed.y * simulation_frame_time,
+                                                 0,
+                                                 mBallSpeed.z * mBallSpeed.y * simulation_frame_time);
+        ball_phys_body->getMotionState()->setWorldTransform(ball_phys_trans);
 
-        mBallNode->SetPosition(mBallNode->GetPosition() + mBallSpeed * simulation_frame_time);
+        mBallNode->SetPosition(mBallNode->GetPosition().x + mBallSpeed.x * mBallSpeed.y * simulation_frame_time,
+                               mBallNode->GetPosition().y,
+                               mBallNode->GetPosition().z + mBallSpeed.z * mBallSpeed.y * simulation_frame_time);
     }
 
 

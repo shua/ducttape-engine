@@ -19,6 +19,8 @@ class Player: public dt::Node {
 public slots:
     virtual void updateFrame(double simulation_frame_time);
 
+    void shoot();
+
 public:
     Player();
     Player(float field_width, float field_height, float paddle_size, QString name);

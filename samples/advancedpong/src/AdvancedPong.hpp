@@ -30,12 +30,24 @@ public:
     void UpdateStateFrame(double simulation_frame_time);
 
     void Click(MyGUI::Widget* _sender);
+private:
+    MyGUI::EditBox* mPlayers;
+};
+
+class AStrangeGame: public dt::State {
+    Q_OBJECT
+public:
+    AStrangeGame();
+    void OnInitialize();
+    void UpdateStateFrame(double simulation_frame_time);
+
+    void Click(MyGUI::Widget* _sender);
 };
 
 class AdvancedPong: public dt::State {
     Q_OBJECT
 public:
-    AdvancedPong(int players);
+    AdvancedPong(QString players);
     void ResetBall();
 
     void OnInitialize();

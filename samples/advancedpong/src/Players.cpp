@@ -8,6 +8,8 @@
 
 
 #include "Players.hpp"
+#include <Graphics/MeshComponent.hpp>
+#include <Physics/PhysicsBodyComponent.hpp>
 #include <Utils/Logger.hpp>
 #include <Utils/Utils.hpp>
 
@@ -57,6 +59,16 @@ void Player::updateFrame(double simulation_frame_time) {
             SetPosition(GetPosition().x, GetPosition().y, new_z);
         }
     }
+}
+
+void Player::shoot() {
+    dt::Node* new_bullet = AddChildNode(new dt::Node);
+    new_bullet->SetPosition(0, 0, 0);
+    dt::MeshComponent* bullet_mesh = new_bullet->AddComponent(new dt::MeshComponent("Ball", "ball"));
+    dt::PhysicsBodyComponent* bullet_body = new_bullet->AddComponent(new dt::PhysicsBodyComponent(bullet_mesh->GetName()));
+    bullet_body->SetRestrictMovement(btVector3(1, 0, 1));
+    dt::Logger::Get().Debug("Dir: " % dt::Utils::ToString((this->GetPosition().x < 0) * 2 - 1));
+    bullet_body->SetCentralForce(btVector3(200 * ((GetPosition().x < 0) * 2 - 1), 0, 0));
 }
 
 RealPlayer::RealPlayer() {}
